@@ -1,0 +1,2392 @@
+﻿
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SpamGuard AI - Email Spam & Malicious Link Detection Platform</title>
+  <style>
+:root {
+  --bg-primary: #0a0e17;
+  --bg-secondary: #111827;
+  --bg-card: rgba(17, 24, 39, 0.85);
+  --bg-card-hover: rgba(31, 41, 55, 0.95);
+  --border-color: rgba(75, 85, 99, 0.35);
+  --border-glow: rgba(246, 59, 215, 0.4);
+
+  --text-main: #f3f4f6;
+  --text-muted: #9ca3af;
+  --text-sub: #6b7280;
+
+  --accent-cyan: #06b6d4;
+  --accent-blue: #3b82f6;
+  --accent-purple: #8b5cf6;
+
+  --safe-green: #10b981;
+  --safe-bg: rgba(16, 185, 129, 0.12);
+  --safe-border: rgba(16, 185, 129, 0.4);
+
+  --warn-yellow: #f59e0b;
+  --warn-bg: rgba(245, 158, 11, 0.12);
+  --warn-border: rgba(245, 158, 11, 0.4);
+
+  --danger-red: #ef4444;
+  --danger-bg: rgba(239, 68, 68, 0.15);
+  --danger-border: rgba(239, 68, 68, 0.5);
+
+  --radius-lg: 16px;
+  --radius-md: 10px;
+  --radius-sm: 6px;
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  font-family: var(--font-family);
+  min-height: 100vh;
+  line-height: 1.5;
+  background-image: 
+    radial-gradient(circle at 15% 15%, rgba(6, 182, 212, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 85% 85%, rgba(139, 92, 246, 0.08) 0%, transparent 40%),
+    linear-gradient(rgba(17, 24, 39, 0.3) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(17, 24, 39, 0.3) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 30px 30px, 30px 30px;
+  overflow-x: hidden;
+}
+
+/* Container */
+.app-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 20px;
+}
+
+/* Header */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 28px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.brand-icon {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.35);
+}
+
+.brand-title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  background: linear-gradient(90deg, #ffffff, #93c5fd);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(31, 41, 55, 0.8);
+  border: 1px solid var(--border-color);
+  border-radius: 9999px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--safe-green);
+  box-shadow: 0 0 8px var(--safe-green);
+}
+
+.status-dot.local-mode {
+  background-color: var(--accent-cyan);
+  box-shadow: 0 0 8px var(--accent-cyan);
+}
+
+.settings-btn {
+  background: rgba(31, 41, 55, 0.8);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.settings-btn:hover {
+  background: rgba(55, 65, 81, 0.9);
+  border-color: var(--accent-blue);
+  transform: translateY(-1px);
+}
+
+/* Navigation Tabs */
+.nav-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 28px;
+  background: rgba(17, 24, 39, 0.7);
+  padding: 6px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  max-width: 650px;
+}
+
+.nav-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nav-tab:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.nav-tab.active {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(59, 130, 246, 0.2));
+  color: #ffffff;
+  border: 1px solid rgba(6, 182, 212, 0.4);
+  box-shadow: 0 0 12px rgba(6, 182, 212, 0.15);
+}
+
+/* Main Layout Grid */
+.view-container {
+  display: none;
+}
+
+.view-container.active {
+  display: block;
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.grid-layout {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .grid-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Cards */
+.card {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  transition: border-color 0.2s;
+}
+
+.card:hover {
+  border-color: rgba(107, 114, 128, 0.5);
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.card-description {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+/* Form Controls */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.form-input, .form-textarea, .form-select {
+  width: 100%;
+  background: rgba(10, 14, 23, 0.8);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.form-input:focus, .form-textarea:focus, .form-select:focus {
+  outline: none;
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 140px;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* Presets Bar */
+.presets-section {
+  margin-bottom: 20px;
+}
+
+.presets-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-sub);
+  margin-bottom: 8px;
+}
+
+.presets-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.preset-chip {
+  background: rgba(31, 41, 55, 0.7);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  padding: 6px 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.preset-chip:hover {
+  background: rgba(55, 65, 81, 0.9);
+  color: #fff;
+  border-color: var(--accent-cyan);
+  transform: translateY(-1px);
+}
+
+.preset-chip.danger-chip:hover {
+  border-color: var(--danger-red);
+}
+
+.preset-chip.safe-chip:hover {
+  border-color: var(--safe-green);
+}
+
+/* Action Buttons */
+.btn-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.btn-primary {
+  flex: 2;
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+  border: none;
+  border-radius: var(--radius-sm);
+  color: #ffffff;
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(6, 182, 212, 0.45);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  flex: 1;
+  background: rgba(31, 41, 55, 0.7);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background: rgba(55, 65, 81, 0.9);
+  color: var(--text-main);
+}
+
+/* Results Panel */
+.results-card {
+  position: sticky;
+  top: 24px;
+  min-height: 480px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-sub);
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.6;
+}
+
+/* Loading State */
+.loading-state {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.scanner-radar {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 3px solid rgba(6, 182, 212, 0.2);
+  border-top-color: var(--accent-cyan);
+  border-right-color: var(--accent-blue);
+  animation: spin 1s infinite linear;
+  margin-bottom: 18px;
+}
+
+.loading-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.loading-subtext {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* Verdict Display */
+.verdict-box {
+  padding: 18px 20px;
+  border-radius: var(--radius-md);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid transparent;
+}
+
+.verdict-box.safe {
+  background: var(--safe-bg);
+  border-color: var(--safe-border);
+}
+
+.verdict-box.warning {
+  background: var(--warn-bg);
+  border-color: var(--warn-border);
+}
+
+.verdict-box.danger {
+  background: var(--danger-bg);
+  border-color: var(--danger-border);
+}
+
+.verdict-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.verdict-tag {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.verdict-title {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.verdict-box.safe .verdict-tag, .verdict-box.safe .verdict-title {
+  color: var(--safe-green);
+}
+
+.verdict-box.warning .verdict-tag, .verdict-box.warning .verdict-title {
+  color: var(--warn-yellow);
+}
+
+.verdict-box.danger .verdict-tag, .verdict-box.danger .verdict-title {
+  color: var(--danger-red);
+}
+
+/* Threat Score Circle */
+.threat-gauge-container {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 16px;
+  background: rgba(10, 14, 23, 0.6);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  margin-bottom: 20px;
+}
+
+.gauge-svg {
+  width: 90px;
+  height: 90px;
+  transform: rotate(-90deg);
+}
+
+.gauge-bg {
+  fill: none;
+  stroke: rgba(75, 85, 99, 0.3);
+  stroke-width: 8;
+}
+
+.gauge-fill {
+  fill: none;
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-dasharray: 251.2;
+  stroke-dashoffset: 251.2;
+  transition: stroke-dashoffset 1s ease, stroke 0.4s ease;
+}
+
+.threat-meta {
+  flex: 1;
+}
+
+.threat-score-val {
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.threat-score-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.threat-model-pill {
+  display: inline-block;
+  font-size: 11px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: var(--text-sub);
+  margin-top: 6px;
+}
+
+/* Metric Bars */
+.metrics-section {
+  margin-bottom: 20px;
+}
+
+.metric-row {
+  margin-bottom: 10px;
+}
+
+.metric-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.metric-bar-bg {
+  width: 100%;
+  height: 6px;
+  background: rgba(75, 85, 99, 0.3);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.metric-bar-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.8s ease;
+  background: var(--accent-cyan);
+}
+
+/* Red Flags List */
+.section-subtitle {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.red-flags-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.flag-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(239, 68, 68, 0.1);
+  border-left: 3px solid var(--danger-red);
+  color: #fca5a5;
+}
+
+.flag-item.safe-flag {
+  background: rgba(16, 185, 129, 0.1);
+  border-left: 3px solid var(--safe-green);
+  color: #a7f3d0;
+}
+
+/* AI Reasoning Box */
+.reasoning-box {
+  background: rgba(10, 14, 23, 0.7);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-main);
+  margin-bottom: 20px;
+}
+
+/* Extracted Links Section */
+.extracted-links-box {
+  background: rgba(10, 14, 23, 0.6);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.link-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+  background: rgba(31, 41, 55, 0.5);
+  border-radius: var(--radius-sm);
+  margin-top: 6px;
+  font-size: 12px;
+}
+
+.link-url-text {
+  font-family: monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 250px;
+  color: var(--accent-cyan);
+}
+
+.inspect-link-btn {
+  background: var(--accent-blue);
+  border: none;
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.inspect-link-btn:hover {
+  background: #2563eb;
+}
+
+/* URL Inspector Specifics */
+.url-anatomy-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.anatomy-pill {
+  background: rgba(10, 14, 23, 0.6);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+}
+
+.anatomy-key {
+  font-size: 11px;
+  color: var(--text-sub);
+  text-transform: uppercase;
+}
+
+.anatomy-val {
+  font-size: 13px;
+  font-weight: 600;
+  font-family: monospace;
+  color: var(--text-main);
+  word-break: break-all;
+}
+
+/* Modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal-content {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  width: 90%;
+  max-width: 520px;
+  padding: 28px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* History Table */
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-top: 14px;
+}
+
+.history-table th {
+  text-align: left;
+  padding: 10px 14px;
+  color: var(--text-sub);
+  border-bottom: 1px solid var(--border-color);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.history-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(75, 85, 99, 0.2);
+}
+
+.history-table tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Animations */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+</style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-icon">🛡️</div>
+        <div>
+          <h1 class="brand-title">SpamGuard AI</h1>
+          <div class="brand-subtitle">AI Email Spam, Phishing & Fake Link Forensics</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="status-badge" id="aiStatusBadge">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusText">Checking Engine...</span>
+        </div>
+        <button class="settings-btn" id="openSettingsBtn">
+          ⚙️ AI Settings
+        </button>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs">
+      <button class="nav-tab active" data-tab="emailTab">
+        📧 Email Spam Detector
+      </button>
+      <button class="nav-tab" data-tab="urlTab">
+        🔗 Fake Link & URL Scanner
+      </button>
+      <button class="nav-tab" data-tab="historyTab">
+        📊 Scan History (<span id="historyCount">0</span>)
+      </button>
+    </nav>
+
+    <!-- TAB 1: EMAIL SPAM DETECTOR -->
+    <section class="view-container active" id="emailTab">
+      <div class="grid-layout">
+        <!-- Input Form -->
+        <div class="card">
+          <h2 class="card-title">📧 Email Threat Inspector</h2>
+          <p class="card-description">Paste email headers, sender, and content to analyze for spam, phishing triggers, brand spoofing, and malicious intent using AI.</p>
+
+          <!-- Email Presets -->
+          <div class="presets-section">
+            <div class="presets-label">⚡ Test with Real-World Presets:</div>
+            <div class="presets-wrapper">
+              <button class="preset-chip danger-chip" onclick="App.loadEmailPreset('paypal')">
+                🚨 PayPal Phishing
+              </button>
+              <button class="preset-chip danger-chip" onclick="App.loadEmailPreset('blackmail')">
+                💰 Bitcoin Extortion
+              </button>
+              <button class="preset-chip danger-chip" onclick="App.loadEmailPreset('lottery')">
+                🎁 Lottery Prize Scam
+              </button>
+              <button class="preset-chip danger-chip" onclick="App.loadEmailPreset('ceo')">
+                👔 CEO Wire Fraud
+              </button>
+              <button class="preset-chip safe-chip" onclick="App.loadEmailPreset('amazon')">
+                🛒 Amazon Receipt (Ham)
+              </button>
+              <button class="preset-chip safe-chip" onclick="App.loadEmailPreset('meeting')">
+                📅 Team Sync (Ham)
+              </button>
+            </div>
+          </div>
+
+          <!-- Form Fields -->
+          <form id="emailForm" onsubmit="event.preventDefault(); App.analyzeEmail();">
+            <div class="form-group">
+              <label class="form-label" for="emailSender">From / Sender Address</label>
+              <input type="text" id="emailSender" class="form-input" placeholder="e.g. security-update@paypa1-support.com or john@company.com">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="emailSubject">Subject Line</label>
+              <input type="text" id="emailSubject" class="form-input" placeholder="e.g. URGENT: Your account has been suspended!">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="emailBody">Email Content / Body</label>
+              <textarea id="emailBody" class="form-textarea" placeholder="Paste full email text here... Links inside will automatically be extracted and tested."></textarea>
+            </div>
+
+            <div class="btn-row">
+              <button type="submit" class="btn-primary" id="analyzeEmailBtn">
+                ⚡ Analyze Email with AI
+              </button>
+              <button type="button" class="btn-secondary" onclick="App.clearEmailForm()">
+                🧹 Clear
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Email Results Card -->
+        <div class="card results-card" id="emailResultsCard">
+          <h2 class="card-title">🔍 AI Forensic Analysis</h2>
+
+          <!-- Empty State -->
+          <div class="empty-state" id="emailEmptyState">
+            <div class="empty-icon">🛡️</div>
+            <h3>Awaiting Input</h3>
+            <p>Paste an email or click one of the quick presets above to run a deep AI threat assessment.</p>
+          </div>
+
+          <!-- Loading State -->
+          <div class="loading-state" id="emailLoadingState">
+            <div class="scanner-radar"></div>
+            <div class="loading-text">Analyzing Email Threat Vectors...</div>
+            <div class="loading-subtext" id="emailLoadingSub">Deconstructing headers, evaluating tone, and inspecting links</div>
+          </div>
+
+          <!-- Result Content -->
+          <div id="emailResultContent" style="display: none;">
+            <!-- Verdict -->
+            <div class="verdict-box" id="emailVerdictBox">
+              <div class="verdict-info">
+                <span class="verdict-tag">CLASSIFICATION VERDICT</span>
+                <span class="verdict-title" id="emailVerdictText">MALICIOUS PHISHING</span>
+              </div>
+              <span id="emailVerdictIcon" style="font-size: 28px;">🚨</span>
+            </div>
+
+            <!-- Threat Score Gauge -->
+            <div class="threat-gauge-container">
+              <svg class="gauge-svg" viewBox="0 0 100 100">
+                <circle class="gauge-bg" cx="50" cy="50" r="40"></circle>
+                <circle class="gauge-fill" id="emailGaugeFill" cx="50" cy="50" r="40"></circle>
+              </svg>
+              <div class="threat-meta">
+                <div class="threat-score-val" id="emailScoreVal">0%</div>
+                <div class="threat-score-label">Spam & Threat Probability</div>
+                <div class="threat-model-pill" id="emailEnginePill">Engine: Local NLP</div>
+              </div>
+            </div>
+
+            <!-- Threat Breakdown Matrix -->
+            <div class="metrics-section">
+              <div class="section-subtitle">Risk Factor Breakdown</div>
+              <div class="metric-row">
+                <div class="metric-header">
+                  <span>Phishing & Scam Potential</span>
+                  <span id="metricPhishingVal">0%</span>
+                </div>
+                <div class="metric-bar-bg"><div class="metric-bar-fill" id="metricPhishingBar" style="width: 0%"></div></div>
+              </div>
+
+              <div class="metric-row">
+                <div class="metric-header">
+                  <span>Urgency & Psychological Coercion</span>
+                  <span id="metricUrgencyVal">0%</span>
+                </div>
+                <div class="metric-bar-bg"><div class="metric-bar-fill" id="metricUrgencyBar" style="width: 0%"></div></div>
+              </div>
+
+              <div class="metric-row">
+                <div class="metric-header">
+                  <span>Credential Harvesting Risk</span>
+                  <span id="metricCredVal">0%</span>
+                </div>
+                <div class="metric-bar-bg"><div class="metric-bar-fill" id="metricCredBar" style="width: 0%"></div></div>
+              </div>
+
+              <div class="metric-row">
+                <div class="metric-header">
+                  <span>Brand Spoofing & Impersonation</span>
+                  <span id="metricSpoofVal">0%</span>
+                </div>
+                <div class="metric-bar-bg"><div class="metric-bar-fill" id="metricSpoofBar" style="width: 0%"></div></div>
+              </div>
+            </div>
+
+            <!-- Detected Red Flags -->
+            <div class="section-subtitle">Key Indicators & Red Flags</div>
+            <div class="red-flags-container" id="emailRedFlagsList">
+              <!-- Injected dynamically -->
+            </div>
+
+            <!-- AI Deep Reasoning -->
+            <div class="section-subtitle">AI Forensic Reasoning</div>
+            <div class="reasoning-box" id="emailReasoningBox">
+              <!-- Injected dynamically -->
+            </div>
+
+            <!-- Extracted Links Section -->
+            <div id="emailExtractedLinksWrapper" style="display: none;">
+              <div class="section-subtitle">Embedded Links Detected in Email</div>
+              <div class="extracted-links-box" id="emailExtractedLinksList">
+                <!-- Injected dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: FAKE LINK & URL SCANNER -->
+    <section class="view-container" id="urlTab">
+      <div class="grid-layout">
+        <!-- URL Form -->
+        <div class="card">
+          <h2 class="card-title">🔗 Fake Link & Malicious URL Scanner</h2>
+          <p class="card-description">Paste any suspicious or normal link to inspect whether it's legitimate or a fake phishing clone, typosquatting domain, or malware dropper using AI.</p>
+
+          <!-- URL Presets -->
+          <div class="presets-section">
+            <div class="presets-label">⚡ Test with URL Presets:</div>
+            <div class="presets-wrapper">
+              <button class="preset-chip danger-chip" onclick="App.loadUrlPreset('paypa1')">
+                🎣 Typosquat: paypa1.com
+              </button>
+              <button class="preset-chip danger-chip" onclick="App.loadUrlPreset('ip_host')">
+                ⚠️ Raw IP Banking Scam
+              </button>
+              <button class="preset-chip danger-chip" onclick="App.loadUrlPreset('netflix_tld')">
+                🚨 Fake Netflix Billing (.ml)
+              </button>
+              <button class="preset-chip danger-chip" onclick="App.loadUrlPreset('dhl_tracking')">
+                📦 Fake Parcel Delivery
+              </button>
+              <button class="preset-chip safe-chip" onclick="App.loadUrlPreset('github')">
+                ✅ Legitimate GitHub
+              </button>
+              <button class="preset-chip safe-chip" onclick="App.loadUrlPreset('google')">
+                ✅ Legitimate Google
+              </button>
+            </div>
+          </div>
+
+          <!-- Form Fields -->
+          <form id="urlForm" onsubmit="event.preventDefault(); App.analyzeUrl();">
+            <div class="form-group">
+              <label class="form-label" for="targetUrl">Target Link / URL to Check</label>
+              <input type="text" id="targetUrl" class="form-input" placeholder="e.g. http://paypa1-account-security-update.xyz/login.php or https://example.com" style="font-family: monospace; font-size: 14px;">
+            </div>
+
+            <div class="btn-row">
+              <button type="submit" class="btn-primary" id="analyzeUrlBtn">
+                🔍 Inspect & Verify Link with AI
+              </button>
+              <button type="button" class="btn-secondary" onclick="App.clearUrlForm()">
+                🧹 Clear
+              </button>
+            </div>
+          </form>
+
+          <!-- Technical Explainer -->
+          <div style="margin-top: 24px; padding: 14px; background: rgba(10, 14, 23, 0.6); border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: 12px; color: var(--text-muted); line-height: 1.6;">
+            💡 <strong>How AI Detects Fake Links:</strong> Attackers use subtle homoglyphs (replacing <code>l</code> with <code>1</code>, <code>o</code> with <code>0</code>), deceptive subdomains (<code>paypal.com.attacker.site</code>), raw IP addresses, and risky TLDs to impersonate legitimate companies. The AI evaluates both structural syntax and domain reputation.
+          </div>
+        </div>
+
+        <!-- URL Results Card -->
+        <div class="card results-card" id="urlResultsCard">
+          <h2 class="card-title">🔍 URL Forensic Analysis</h2>
+
+          <!-- Empty State -->
+          <div class="empty-state" id="urlEmptyState">
+            <div class="empty-icon">🌐</div>
+            <h3>No URL Inspected</h3>
+            <p>Paste a web address or choose a test preset to verify if a link is genuine or dangerous.</p>
+          </div>
+
+          <!-- Loading State -->
+          <div class="loading-state" id="urlLoadingState">
+            <div class="scanner-radar"></div>
+            <div class="loading-text">Scanning URL Architecture...</div>
+            <div class="loading-subtext">Evaluating typosquatting, domain entropy, SSL status, and brand spoofing</div>
+          </div>
+
+          <!-- URL Result Content -->
+          <div id="urlResultContent" style="display: none;">
+            <!-- Verdict -->
+            <div class="verdict-box" id="urlVerdictBox">
+              <div class="verdict-info">
+                <span class="verdict-tag">URL VERDICT</span>
+                <span class="verdict-title" id="urlVerdictText">PHISHING / MALICIOUS LINK</span>
+              </div>
+              <span id="urlVerdictIcon" style="font-size: 28px;">🚨</span>
+            </div>
+
+            <!-- Threat Score Gauge -->
+            <div class="threat-gauge-container">
+              <svg class="gauge-svg" viewBox="0 0 100 100">
+                <circle class="gauge-bg" cx="50" cy="50" r="40"></circle>
+                <circle class="gauge-fill" id="urlGaugeFill" cx="50" cy="50" r="40"></circle>
+              </svg>
+              <div class="threat-meta">
+                <div class="threat-score-val" id="urlScoreVal">0%</div>
+                <div class="threat-score-label">Malicious / Fake Probability</div>
+                <div class="threat-model-pill" id="urlEnginePill">Engine: Local NLP</div>
+              </div>
+            </div>
+
+            <!-- URL Anatomy Grid -->
+            <div class="section-subtitle">URL & Domain Architecture</div>
+            <div class="url-anatomy-grid">
+              <div class="anatomy-pill">
+                <div class="anatomy-key">Protocol</div>
+                <div class="anatomy-val" id="anatomyProto">HTTPS</div>
+              </div>
+              <div class="anatomy-pill">
+                <div class="anatomy-key">Target Hostname</div>
+                <div class="anatomy-val" id="anatomyHost">-</div>
+              </div>
+              <div class="anatomy-pill">
+                <div class="anatomy-key">Target Brand Spoofed</div>
+                <div class="anatomy-val" id="anatomyBrand">None Detected</div>
+              </div>
+              <div class="anatomy-pill">
+                <div class="anatomy-key">Entropy / Randomness</div>
+                <div class="anatomy-val" id="anatomyEntropy">-</div>
+              </div>
+            </div>
+
+            <!-- Red Flags List -->
+            <div class="section-subtitle">Detected Anomalies</div>
+            <div class="red-flags-container" id="urlRedFlagsList">
+              <!-- Injected dynamically -->
+            </div>
+
+            <!-- AI Reasoning -->
+            <div class="section-subtitle">AI Threat Evaluation</div>
+            <div class="reasoning-box" id="urlReasoningBox">
+              <!-- Injected dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: SCAN HISTORY -->
+    <section class="view-container" id="historyTab">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <div>
+            <h2 class="card-title">📊 Threat Intelligence Scan History</h2>
+            <p class="card-description">Review all previous email and URL scans logged during this session.</p>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="settings-btn" onclick="App.exportHistory()">📥 Export JSON</button>
+            <button class="settings-btn" style="color: var(--danger-red);" onclick="App.clearHistory()">🗑️ Clear</button>
+          </div>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Type</th>
+                <th>Target / Subject</th>
+                <th>Threat Score</th>
+                <th>Verdict</th>
+                <th>Engine</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody">
+              <tr>
+                <td colspan="6" style="text-align: center; color: var(--text-sub); padding: 30px;">No scans recorded yet. Run an email or link check to build history!</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- SETTINGS MODAL -->
+    <div class="modal-overlay" id="settingsModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="card-title">⚙️ AI Engine Configuration</h3>
+          <button class="modal-close" id="closeSettingsBtn">&times;</button>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="apiKeyInput">Google Gemini API Key (Optional)</label>
+          <input type="password" id="apiKeyInput" class="form-input" placeholder="Paste AI Studio Key (AIzaSy...)">
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">
+            ✨ Don't have a key? 
+            <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" style="color: var(--accent-cyan); text-decoration: underline;">
+              Get a free API key at Google AI Studio
+            </a>.
+            If left blank, the app runs offline using our high-accuracy client-side NLP security engine!
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="modelSelect">Gemini LLM Model</label>
+          <select id="modelSelect" class="form-select">
+            <option value="gemini-2.5-flash">Gemini 2.5 Flash (Ultra-fast & Smart - Recommended)</option>
+            <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+            <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+            <option value="gemini-1.5-pro">Gemini 1.5 Pro (Deep Forensic Reasoning)</option>
+          </select>
+        </div>
+
+        <div class="btn-row" style="margin-top: 24px;">
+          <button type="button" class="btn-primary" onclick="App.saveSettings()">
+            💾 Save Settings
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+/**
+ * SpamGuard AI - Intelligent Client-Side NLP & Heuristic Engine
+ * Provides instant offline heuristic & rule-based AI analysis for emails and links.
+ */
+
+const POPULAR_BRANDS = [
+  { name: 'PayPal', domain: 'paypal.com', variants: ['paypa1', 'pay-pal', 'paypal-secure', 'paypal-service', 'paypaI'] },
+  { name: 'Amazon', domain: 'amazon.com', variants: ['arnazon', 'amaz0n', 'amazon-support', 'amazon-orders', 'amzon'] },
+  { name: 'Google', domain: 'google.com', variants: ['goog1e', 'g00gle', 'google-security', 'google-account'] },
+  { name: 'Microsoft', domain: 'microsoft.com', variants: ['micros0ft', 'micro-soft', 'office365-verify', 'msft-login'] },
+  { name: 'Apple', domain: 'apple.com', variants: ['app1e', 'apple-id', 'appleid-verify', 'icloud-security'] },
+  { name: 'Netflix', domain: 'netflix.com', variants: ['netf1ix', 'net-flix', 'netflix-billing', 'netflix-update'] },
+  { name: 'Facebook / Meta', domain: 'facebook.com', variants: ['faceb00k', 'meta-support', 'fb-security'] },
+  { name: 'Bank of America', domain: 'bankofamerica.com', variants: ['bofa-login', 'bankofamerica-verify'] },
+  { name: 'Chase Bank', domain: 'chase.com', variants: ['chase-online', 'chase-security-verify'] },
+  { name: 'DHL Express', domain: 'dhl.com', variants: ['dhl-delivery', 'dhl-tracking-parcel', 'dhl-fee'] },
+  { name: 'FedEx', domain: 'fedex.com', variants: ['fedex-parcel', 'fedex-shipping-hold', 'fedex-delivery'] }
+];
+
+const SUSPICIOUS_TLDS = ['.xyz', '.top', '.club', '.ml', '.ga', '.cf', '.gq', '.tk', '.work', '.click', '.loan', '.buzz', '.rest', '.fit', '.country', '.kim', '.download', '.racing', '.win'];
+
+const SPAM_KEYWORDS = {
+  // Urgency & Threat
+  'urgent': 3, 'immediately': 3, 'account suspended': 4, 'action required': 3, 'suspended within': 4,
+  '24 hours': 3, 'locked': 3, 'unauthorized access': 4, 'security breach': 3, 'compromised': 3,
+  'limited time': 2, 'act now': 3, 'last warning': 4, 'final notice': 4, 'legal action': 4,
+
+  // Financial & Extortion
+  'bitcoin': 3, 'btc': 3, 'crypto': 2, 'wallet address': 4, 'wire transfer': 4, 'inheritance': 5,
+  '100% free': 3, 'winner': 4, 'won': 3, 'lottery': 5, 'claim prize': 4, 'compensation fund': 5,
+  'million dollars': 4, 'beneficiary': 4, 'western union': 4, 'rich': 2, 'cash bonus': 3,
+  'tax refund': 3, 'processing fee': 3, 'secret record': 4, 'webcam': 4, 'recorded you': 5,
+
+  // Credential Harvesting
+  'verify your account': 4, 'confirm your password': 5, 'update your billing': 4,
+  're-activate': 3, 'identity verification': 3, 'enter your pin': 5, 'social security': 5,
+  'ssn': 5, 'credit card details': 4, 'sign in here': 3, 'click here': 2,
+
+  // Spam Marketing / Quackery
+  'unlimited': 2, 'miracle': 3, 'weight loss': 3, 'casino': 4, 'viagra': 5, 'cialis': 5,
+  'pharmacy': 3, 'cheap meds': 4, 'no prescription': 5, 'make money fast': 4, 'work from home': 2
+};
+
+class NLPEngine {
+  // Extract URLs from text
+  static extractUrls(text) {
+    if (!text) return [];
+    const urlRegex = /(https?:\/\/[^\s<>"'()]+|www\.[^\s<>"'()]+|[a-zA-Z0-9-]+\.(?:com|org|net|xyz|top|ru|io|co|info|biz|site|online|live)[^\s<>"'()]*)/gi;
+    const matches = text.match(urlRegex) || [];
+    return [...new Set(matches.map(u => {
+      let cleaned = u.replace(/[.,;!?]+$/, '');
+      if (!cleaned.startsWith('http://') && !cleaned.startsWith('https://')) {
+        return 'https://' + cleaned;
+      }
+      return cleaned;
+    }))];
+  }
+
+  // Calculate string entropy (detects random generated strings)
+  static calculateEntropy(str) {
+    if (!str || str.length === 0) return 0;
+    const map = {};
+    for (let char of str) {
+      map[char] = (map[char] || 0) + 1;
+    }
+    let entropy = 0;
+    const len = str.length;
+    for (let count of Object.values(map)) {
+      const p = count / len;
+      entropy -= p * Math.log2(p);
+    }
+    return entropy;
+  }
+
+  // Check Levenshtein distance for typosquatting
+  static levenshteinDistance(a, b) {
+    const matrix = [];
+    for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+    for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+
+    for (let i = 1; i <= b.length; i++) {
+      for (let j = 1; j <= a.length; j++) {
+        if (b.charAt(i - 1) === a.charAt(j - 1)) {
+          matrix[i][j] = matrix[i - 1][j - 1];
+        } else {
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j - 1] + 1,
+            matrix[i][j - 1] + 1,
+            matrix[i - 1][j] + 1
+          );
+        }
+      }
+    }
+    return matrix[b.length][a.length];
+  }
+
+  // Analyze URL/Link
+  static analyzeUrl(inputUrl) {
+    let rawUrl = (inputUrl || '').trim();
+    if (!rawUrl) {
+      throw new Error("Please provide a URL to analyze.");
+    }
+
+    if (!rawUrl.startsWith('http://') && !rawUrl.startsWith('https://')) {
+      rawUrl = 'https://' + rawUrl;
+    }
+
+    let parsed;
+    try {
+      parsed = new URL(rawUrl);
+    } catch (e) {
+      return {
+        url: rawUrl,
+        isValid: false,
+        threatScore: 85,
+        verdict: 'MALICIOUS / INVALID',
+        riskLevel: 'high',
+        redFlags: ['Malformed URL structure or illegal character escape'],
+        details: { protocol: 'unknown', host: 'unknown', path: 'unknown' },
+        reasoning: 'The URL provided does not conform to valid URI standards. Attackers frequently use malformed URLs to bypass security filters or exploit browser parser bugs.'
+      };
+    }
+
+    const host = parsed.hostname.toLowerCase();
+    const path = parsed.pathname.toLowerCase() + parsed.search.toLowerCase();
+    const protocol = parsed.protocol;
+
+    let score = 5; // Base clean score
+    const redFlags = [];
+    let impersonatedBrand = null;
+
+    // 1. Insecure Protocol Check
+    if (protocol === 'http:') {
+      score += 15;
+      redFlags.push('Insecure connection (HTTP without SSL/TLS encryption)');
+    }
+
+    // 2. IP Address in Hostname
+    const isIpAddress = /^(\d{1,3}\.){3}\d{1,3}$/.test(host);
+    if (isIpAddress) {
+      score += 45;
+      redFlags.push('Domain is a raw IP address instead of registered hostname');
+    }
+
+    // 3. High-Risk TLD Check
+    const matchedTld = SUSPICIOUS_TLDS.find(tld => host.endsWith(tld));
+    if (matchedTld) {
+      score += 25;
+      redFlags.push(`Suspicious / High-Abuse Top-Level Domain (${matchedTld})`);
+    }
+
+    // 4. Excessive Subdomains
+    const subdomains = host.split('.');
+    if (subdomains.length > 4) {
+      score += 20;
+      redFlags.push(`Excessive nested subdomains (${subdomains.length - 2} levels) - common phishing cloaking technique`);
+    }
+
+    // 5. Brand Impersonation & Typosquatting
+    for (const brand of POPULAR_BRANDS) {
+      // Direct spoof variant
+      for (const variant of brand.variants) {
+        if (host.includes(variant) && !host.endsWith(brand.domain)) {
+          score += 55;
+          impersonatedBrand = brand.name;
+          redFlags.push(`Typosquatting / Impersonation detected: Looks like ${brand.name} ('${variant}') but hosted on '${host}'`);
+          break;
+        }
+      }
+
+      // Subdomain spoof (e.g. paypal.com.attacker.com)
+      const brandRoot = brand.domain.split('.')[0];
+      if (host.includes(brandRoot) && !host.endsWith(brand.domain)) {
+        if (!impersonatedBrand) {
+          score += 40;
+          impersonatedBrand = brand.name;
+          redFlags.push(`Brand spoofing: Subdomain or domain contains '${brandRoot}' but real domain is '${brand.domain}'`);
+        }
+      }
+
+      // Levenshtein close distance to brand name
+      const mainDomainPart = subdomains[Math.max(0, subdomains.length - 2)] || '';
+      if (mainDomainPart.length > 3 && mainDomainPart !== brandRoot) {
+        const dist = this.levenshteinDistance(mainDomainPart, brandRoot);
+        if (dist === 1) {
+          score += 45;
+          impersonatedBrand = brand.name;
+          redFlags.push(`Homoglyph / Near-clone domain name: '${mainDomainPart}' differs from legitimate '${brandRoot}' by only 1 character`);
+        }
+      }
+    }
+
+    // 6. Suspicious Phishing Keywords in Path or Query
+    const phishingPathKeywords = ['login', 'signin', 'verify', 'update', 'account-security', 'confirm', 'banking', 'wallet', 'ebayisapi', 'billing', 'passcode'];
+    let foundKeywords = [];
+    for (const kw of phishingPathKeywords) {
+      if (path.includes(kw)) {
+        foundKeywords.push(kw);
+      }
+    }
+    if (foundKeywords.length > 0) {
+      score += Math.min(25, foundKeywords.length * 10);
+      redFlags.push(`Credential harvesting path keywords detected: [${foundKeywords.join(', ')}]`);
+    }
+
+    // 7. Domain Entropy / DGA (Domain Generation Algorithm)
+    const hostEntropy = this.calculateEntropy(host.replace(/\./g, ''));
+    if (hostEntropy > 3.8 && host.length > 14) {
+      score += 20;
+      redFlags.push(`High algorithmic randomness/entropy (${hostEntropy.toFixed(2)}) indicating potential DGA or disposable domain`);
+    }
+
+    // 8. @ Symbol in URL (used for credential masking)
+    if (inputUrl.includes('@')) {
+      score += 40;
+      redFlags.push("Contains '@' symbol: URL exploits browser auth syntax to disguise actual destination server");
+    }
+
+    // Cap score at 100
+    const finalScore = Math.min(100, Math.max(0, score));
+
+    let verdict = 'SAFE / LEGITIMATE';
+    let riskLevel = 'low';
+
+    if (finalScore >= 70) {
+      verdict = 'PHISHING / MALICIOUS LINK';
+      riskLevel = 'high';
+    } else if (finalScore >= 40) {
+      verdict = 'SUSPICIOUS LINK';
+      riskLevel = 'medium';
+    }
+
+    let reasoning = '';
+    if (finalScore < 40) {
+      reasoning = `The URL structure conforms to standard conventions with valid hostname, encrypted transport, and no obvious spoofing or homoglyph patterns detected.`;
+    } else if (finalScore < 70) {
+      reasoning = `The link exhibits moderate risk markers (${redFlags.join('; ')}). Caution is advised before entering credentials or downloading files.`;
+    } else {
+      reasoning = `High probability of malicious intent. Detected ${redFlags.length} major threat signals including ${impersonatedBrand ? `active impersonation of ${impersonatedBrand}, ` : ''}anomalous URL routing and deceptive naming patterns. Visiting this site could result in credential harvesting or malware deployment.`;
+    }
+
+    return {
+      url: rawUrl,
+      isValid: true,
+      threatScore: finalScore,
+      verdict: verdict,
+      riskLevel: riskLevel,
+      impersonatedBrand: impersonatedBrand,
+      redFlags: redFlags,
+      details: {
+        protocol: protocol.replace(':', ''),
+        host: host,
+        path: parsed.pathname,
+        isIpAddress: isIpAddress,
+        entropy: hostEntropy.toFixed(2)
+      },
+      reasoning: reasoning,
+      timestamp: new Date().toISOString()
+    };
+  }
+
+  // Analyze Full Email
+  static analyzeEmail({ subject = '', sender = '', body = '' }) {
+    let score = 2; // Clean baseline
+    const redFlags = [];
+    const threatBreakdown = {
+      phishing: 0,
+      urgency: 0,
+      financial: 0,
+      credentialHarvester: 0,
+      spoofing: 0
+    };
+
+    const combinedText = `${subject} ${body}`.toLowerCase();
+
+    // 1. Check for spam & phishing keywords
+    let keywordHits = 0;
+    for (const [phrase, weight] of Object.entries(SPAM_KEYWORDS)) {
+      if (combinedText.includes(phrase)) {
+        keywordHits++;
+        score += weight * 4;
+
+        if (['urgent', 'immediately', '24 hours', 'action required', 'suspended within', 'last warning', 'final notice'].includes(phrase)) {
+          threatBreakdown.urgency += weight * 15;
+        }
+        if (['bitcoin', 'btc', 'inheritance', 'winner', 'won', 'lottery', 'wire transfer', '100% free'].includes(phrase)) {
+          threatBreakdown.financial += weight * 15;
+        }
+        if (['verify your account', 'confirm your password', 'update your billing', 'enter your pin', 'ssn', 'social security'].includes(phrase)) {
+          threatBreakdown.credentialHarvester += weight * 20;
+          threatBreakdown.phishing += weight * 15;
+        }
+      }
+    }
+
+    if (keywordHits > 0) {
+      redFlags.push(`Detected ${keywordHits} high-risk spam/phishing trigger phrases`);
+    }
+
+    // 2. Sender vs Claimed Content Analysis
+    const senderLower = sender.toLowerCase();
+    for (const brand of POPULAR_BRANDS) {
+      const brandRoot = brand.domain.split('.')[0];
+      const mentionsBrand = combinedText.includes(brandRoot);
+
+      if (mentionsBrand) {
+        if (senderLower && !senderLower.includes(brand.domain)) {
+          score += 35;
+          threatBreakdown.spoofing += 50;
+          redFlags.push(`Brand Impersonation / Sender Mismatch: Email claims to represent ${brand.name}, but sender is '${sender}' instead of official '${brand.domain}'`);
+        }
+      }
+    }
+
+    // Free webmail used for corporate/official business
+    const freeWebmailProviders = ['@gmail.com', '@yahoo.com', '@hotmail.com', '@outlook.com', '@mail.ru'];
+    const usesFreeMail = freeWebmailProviders.some(p => senderLower.endsWith(p));
+    if (usesFreeMail && (combinedText.includes('invoice') || combinedText.includes('billing') || combinedText.includes('bank') || combinedText.includes('support team') || combinedText.includes('administrator'))) {
+      score += 25;
+      threatBreakdown.spoofing += 30;
+      redFlags.push(`Free public webmail provider used by sender ('${sender}') while claiming to be official support, billing, or administration`);
+    }
+
+    // 3. Subject Line Formatting
+    if (subject.length > 5 && subject === subject.toUpperCase() && /[A-Z]/.test(subject)) {
+      score += 15;
+      threatBreakdown.urgency += 25;
+      redFlags.push('Subject line is ALL CAPS (Aggressive attention grabbing)');
+    }
+    const exclamationCount = (subject.match(/!/g) || []).length;
+    if (exclamationCount >= 2) {
+      score += 10;
+      redFlags.push(`Excessive exclamation marks in subject (${exclamationCount})`);
+    }
+
+    // 4. Extract and inspect embedded links
+    const extractedUrls = this.extractUrls(body);
+    const linkAnalyses = extractedUrls.map(u => this.analyzeUrl(u));
+    const maliciousLinks = linkAnalyses.filter(l => l.threatScore >= 60);
+
+    if (maliciousLinks.length > 0) {
+      score += 35 + (maliciousLinks.length * 10);
+      threatBreakdown.phishing += 60;
+      redFlags.push(`Contains ${maliciousLinks.length} high-threat or spoofed link(s) in email body`);
+    } else if (extractedUrls.length > 5) {
+      score += 15;
+      redFlags.push(`Abnormally high link density (${extractedUrls.length} links)`);
+    }
+
+    // Normalize threat breakdown scores
+    for (const k in threatBreakdown) {
+      threatBreakdown[k] = Math.min(100, Math.round(threatBreakdown[k]));
+    }
+
+    const finalScore = Math.min(100, Math.max(0, score));
+
+    let verdict = 'LEGITIMATE (HAM)';
+    let riskLevel = 'low';
+
+    if (finalScore >= 70) {
+      verdict = 'MALICIOUS PHISHING / FRAUD';
+      riskLevel = 'high';
+    } else if (finalScore >= 40) {
+      verdict = 'SUSPICIOUS / SPAM';
+      riskLevel = 'medium';
+    }
+
+    // Generate natural reasoning
+    let reasoning = '';
+    if (finalScore < 40) {
+      reasoning = `The email appears legitimate. Language tone is typical and professional, sender domain appears consistent, and no deceptive urgency tactics or malicious credential-harvesting triggers were identified.`;
+    } else if (finalScore < 70) {
+      reasoning = `The email contains markers typical of unsolicited marketing spam or promotional material. While not necessarily a targeted cyberattack, caution is recommended.`;
+    } else {
+      reasoning = `CRITICAL THREAT: High likelihood of a targeted phishing or fraud campaign. The email employs psychological coercion (artificial deadlines, threat of account suspension), exhibits brand/domain spoofing, or contains deceitful links designed to harvest user credentials or financial information.`;
+    }
+
+    return {
+      threatScore: finalScore,
+      verdict: verdict,
+      riskLevel: riskLevel,
+      threatBreakdown: threatBreakdown,
+      redFlags: redFlags,
+      extractedUrls: linkAnalyses,
+      reasoning: reasoning,
+      timestamp: new Date().toISOString()
+    };
+  }
+}
+
+// Export for browser
+if (typeof window !== 'undefined') {
+  window.NLPEngine = NLPEngine;
+}
+
+</script>
+<script>
+/**
+ * SpamGuard AI - Gemini AI LLM Client
+ * Communicates directly with Google Gemini Generative Language REST API.
+ */
+
+class GeminiClient {
+  constructor() {
+    this.storageKey = 'spamguard_gemini_api_key';
+    this.modelKey = 'spamguard_gemini_model';
+    this.defaultModel = 'gemini-2.5-flash';
+  }
+
+  getApiKey() {
+    return localStorage.getItem(this.storageKey) || '';
+  }
+
+  setApiKey(key) {
+    if (!key) {
+      localStorage.removeItem(this.storageKey);
+    } else {
+      localStorage.setItem(this.storageKey, key.trim());
+    }
+  }
+
+  getModel() {
+    return localStorage.getItem(this.modelKey) || this.defaultModel;
+  }
+
+  setModel(model) {
+    localStorage.setItem(this.modelKey, model);
+  }
+
+  hasApiKey() {
+    const key = this.getApiKey();
+    return Boolean(key && key.length > 10);
+  }
+
+  // Analyze Email using Gemini LLM
+  async analyzeEmail({ subject, sender, body }) {
+    const apiKey = this.getApiKey();
+    if (!apiKey) {
+      throw new Error("No Gemini API key found. Please enter your API key in Settings or use Local AI mode.");
+    }
+
+    const model = this.getModel();
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+    const systemPrompt = `You are an elite Cybersecurity Threat Analyst and AI Forensic Specialist. 
+Analyze the following email for spam, phishing, social engineering, spoofing, credential harvesting, malware delivery, and financial fraud.
+Return your evaluation STRICTLY as a valid JSON object with NO MARKDOWN, NO CODEBLOCKS, NO PREAMBLE.
+
+JSON Structure:
+{
+  "threatScore": <integer between 0 and 100>,
+  "verdict": "<'LEGITIMATE (HAM)' | 'SUSPICIOUS / SPAM' | 'MALICIOUS PHISHING / FRAUD'>",
+  "riskLevel": "<'low' | 'medium' | 'high'>",
+  "impersonatedBrand": "<string or null>",
+  "threatBreakdown": {
+    "phishing": <0 to 100>,
+    "urgency": <0 to 100>,
+    "financial": <0 to 100>,
+    "credentialHarvester": <0 to 100>,
+    "spoofing": <0 to 100>
+  },
+  "redFlags": [
+    "<specific red flag description, e.g. 'False urgency: 24h deadline', 'Domain impersonation of PayPal'>",
+    ...
+  ],
+  "reasoning": "<Comprehensive 2-4 sentence explanation detailing psychological triggers, technical indicators, and intent>",
+  "recommendations": [
+    "<actionable security tip 1>",
+    "<actionable security tip 2>"
+  ]
+}`;
+
+    const userContent = `EMAIL TO ANALYZE:
+From: ${sender || 'Unknown / Not specified'}
+Subject: ${subject || 'No Subject'}
+Body:
+${body || '(Empty Body)'}`;
+
+    const payload = {
+      contents: [
+        {
+          role: "user",
+          parts: [
+            { text: `${systemPrompt}\n\n${userContent}` }
+          ]
+        }
+      ],
+      generationConfig: {
+        temperature: 0.1,
+        responseMimeType: "application/json"
+      }
+    };
+
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      const msg = errData?.error?.message || `HTTP ${response.status}: ${response.statusText}`;
+      throw new Error(`Gemini API Error: ${msg}`);
+    }
+
+    const data = await response.json();
+    const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!rawText) {
+      throw new Error("Empty response returned from Gemini API.");
+    }
+
+    // Clean JSON markdown if model wrapped it
+    const cleanJson = rawText.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
+    const parsed = JSON.parse(cleanJson);
+
+    // Also extract and inspect links locally for hybrid synergy
+    const extractedUrls = NLPEngine.extractUrls(body);
+    parsed.extractedUrls = extractedUrls.map(u => NLPEngine.analyzeUrl(u));
+    parsed.engine = `Gemini LLM (${model})`;
+    parsed.timestamp = new Date().toISOString();
+
+    return parsed;
+  }
+
+  // Analyze URL/Link using Gemini LLM
+  async analyzeUrl(url) {
+    const apiKey = this.getApiKey();
+    if (!apiKey) {
+      throw new Error("No Gemini API key found. Please enter your API key in Settings or use Local AI mode.");
+    }
+
+    const model = this.getModel();
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+    const systemPrompt = `You are a specialist in Web Threat Intelligence, Phishing Infrastructure, and URL Forensics.
+Analyze the target URL for:
+- Phishing & Credential Harvesters (fake login pages, spoofed bank/tech portals)
+- Typosquatting / Combosquatting / Homoglyphs (e.g., paypa1, micros0ft, arnazon)
+- Malicious Top-Level Domains (TLDs) and disposable DNS
+- Insecure protocol, raw IP hosting, excessive subdomains, masqueraded paths
+- Brand Impersonation and intent
+
+Return your evaluation STRICTLY as a valid JSON object with NO MARKDOWN, NO CODEBLOCKS, NO PREAMBLE.
+
+JSON Structure:
+{
+  "url": "<the input url>",
+  "threatScore": <integer between 0 and 100>,
+  "verdict": "<'SAFE / LEGITIMATE' | 'SUSPICIOUS LINK' | 'PHISHING / MALICIOUS LINK'>",
+  "riskLevel": "<'low' | 'medium' | 'high'>",
+  "impersonatedBrand": "<string or null>",
+  "isFakeLink": <boolean true or false>,
+  "redFlags": [
+    "<specific anomaly 1>",
+    "<specific anomaly 2>"
+  ],
+  "reasoning": "<Detailed 2-3 sentence forensic explanation on whether this link is authentic or fake/dangerous and why>",
+  "recommendations": [
+    "<actionable security recommendation 1>",
+    "<actionable security recommendation 2>"
+  ]
+}`;
+
+    const userContent = `URL TO INSPECT: ${url}`;
+
+    const payload = {
+      contents: [
+        {
+          role: "user",
+          parts: [
+            { text: `${systemPrompt}\n\n${userContent}` }
+          ]
+        }
+      ],
+      generationConfig: {
+        temperature: 0.1,
+        responseMimeType: "application/json"
+      }
+    };
+
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      const msg = errData?.error?.message || `HTTP ${response.status}: ${response.statusText}`;
+      throw new Error(`Gemini API Error: ${msg}`);
+    }
+
+    const data = await response.json();
+    const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!rawText) {
+      throw new Error("Empty response returned from Gemini API.");
+    }
+
+    const cleanJson = rawText.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
+    const parsed = JSON.parse(cleanJson);
+
+    // Merge with structural URL breakdown
+    const localInfo = NLPEngine.analyzeUrl(url);
+    parsed.details = localInfo.details;
+    parsed.engine = `Gemini LLM (${model})`;
+    parsed.timestamp = new Date().toISOString();
+
+    return parsed;
+  }
+}
+
+if (typeof window !== 'undefined') {
+  window.GeminiClient = GeminiClient;
+}
+
+</script>
+<script>
+/**
+ * SpamGuard AI - Main Application Controller
+ */
+
+const EMAIL_PRESETS = {
+  paypal: {
+    sender: 'support-alert@paypa1-account-security.xyz',
+    subject: 'URGENT: Your PayPal Account Has Been Suspended!',
+    body: `Dear Customer,
+
+We detected unauthorized access to your PayPal account from an unrecognized IP address. For your security, your account has been temporarily restricted and will be permanently deleted within 24 hours unless you confirm your identity.
+
+Please click the secure verification link below immediately to update your billing and confirm your password:
+http://paypa1-account-security-update.xyz/login.php
+
+If you fail to verify within 24 hours, all pending funds will be permanently forfeited.
+
+Sincerely,
+PayPal Security & Fraud Prevention Team`
+  },
+  blackmail: {
+    sender: 'darkshadow99@anonymous-mail.ru',
+    subject: 'SECURITY BREACH: I recorded your webcam and have all passwords',
+    body: `Hello,
+
+I have installed a remote access trojan on your system through an adult website vulnerability. I have full recordings of you from your webcam along with your browser history and contact lists.
+
+If you do not want these videos sent to all your friends, family, and coworkers, send $1,200 in Bitcoin immediately to the following BTC wallet address:
+1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa
+
+You have exactly 24 hours. I will know the second you open this email. Do not bother contacting police.`
+  },
+  lottery: {
+    sender: 'claims@international-lottery-board.top',
+    subject: 'CONGRATULATIONS! You have won $2,500,000 USD (Ref #UK/9284)',
+    body: `Dear Beneficiary,
+
+The International World Lottery Promo Foundation officially notifies you that your email address was selected as the 1st prize winner of $2,500,000.00 USD!
+
+To claim your prize funds, reply immediately with:
+1. Full Legal Name
+2. Direct Telephone Number
+3. Copy of Government ID or Passport
+4. Bank Account & Routing Number
+
+A small processing fee of $250 via Western Union is required before wire transfer dispatch. Contact claims manager Dr. Arthur Morgan at:
+http://lottery-claim-portal.click/verify`
+  },
+  ceo: {
+    sender: 'ceo.mark.internal@gmail.com',
+    subject: 'Urgent Wire Transfer Request - Confidential Acquisition',
+    body: `Hey,
+
+I'm currently in a confidential board meeting regarding a critical strategic acquisition. I need you to initiate an urgent wire transfer of $45,800 to our external legal advisor today before banks close.
+
+Please do not call my office line as I am presenting. Reply to this email immediately so I can provide the wire details. Treat this as strictly confidential.
+
+Best,
+Mark - Chief Executive Officer`
+  },
+  amazon: {
+    sender: 'auto-confirm@amazon.com',
+    subject: 'Your Amazon.com order #112-9482910-3847291 has shipped',
+    body: `Hello Alex,
+
+We thought you'd like to know that your items have shipped! 
+
+Order Details:
+1x Anker USB-C Fast Charger Cable (6ft)
+Estimated Delivery: Tuesday, Nov 18
+
+You can track your package directly on Amazon:
+https://www.amazon.com/gp/your-account/order-history
+
+Thank you for shopping with Amazon!`
+  },
+  meeting: {
+    sender: 'sarah.jenkins@designcorp.io',
+    subject: 'Design Sprint Review & Q4 Roadmap Planning - Wednesday 10 AM',
+    body: `Hi Team,
+
+Just sending out the agenda for our upcoming design sprint retrospective on Wednesday at 10:00 AM PST.
+
+Agenda:
+1. Review user interview feedback from prototype v2
+2. Review design system token updates
+3. Finalize Q4 backlog priorities
+
+Here is the Google Meet link for the session:
+https://meet.google.com/abc-defg-hij
+
+Please take a look at the attached Figma deck beforehand if you have a moment.
+
+Best,
+Sarah`
+  }
+};
+
+const URL_PRESETS = {
+  paypa1: 'http://paypa1-account-security-update.xyz/login.php',
+  ip_host: 'http://192.168.1.104:8080/bank-verification',
+  netflix_tld: 'http://netflix-billing-update-account.ml/signin',
+  dhl_tracking: 'http://dhl-package-tracking-fee992.com/pay',
+  github: 'https://github.com/torvalds/linux',
+  google: 'https://www.google.com/search?q=cybersecurity'
+};
+
+class Application {
+  constructor() {
+    this.gemini = new GeminiClient();
+    this.history = this.loadHistory();
+    this.initEventListeners();
+    this.updateStatusBadge();
+    this.renderHistory();
+  }
+
+  initEventListeners() {
+    // Navigation Tabs
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.addEventListener('click', (e) => {
+        const targetId = tab.dataset.tab;
+        this.switchTab(targetId);
+      });
+    });
+
+    // Settings Modal
+    const modal = document.getElementById('settingsModal');
+    document.getElementById('openSettingsBtn').addEventListener('click', () => {
+      document.getElementById('apiKeyInput').value = this.gemini.getApiKey();
+      document.getElementById('modelSelect').value = this.gemini.getModel();
+      modal.classList.add('active');
+    });
+
+    document.getElementById('closeSettingsBtn').addEventListener('click', () => {
+      modal.classList.remove('active');
+    });
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) modal.classList.remove('active');
+    });
+  }
+
+  switchTab(tabId) {
+    document.querySelectorAll('.nav-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === tabId);
+    });
+    document.querySelectorAll('.view-container').forEach(c => {
+      c.classList.toggle('active', c.id === tabId);
+    });
+  }
+
+  updateStatusBadge() {
+    const dot = document.getElementById('statusDot');
+    const text = document.getElementById('statusText');
+
+    if (this.gemini.hasApiKey()) {
+      dot.className = 'status-dot';
+      text.innerText = `Gemini LLM (${this.gemini.getModel()})`;
+    } else {
+      dot.className = 'status-dot local-mode';
+      text.innerText = 'Local NLP Engine (Active)';
+    }
+  }
+
+  saveSettings() {
+    const key = document.getElementById('apiKeyInput').value;
+    const model = document.getElementById('modelSelect').value;
+    this.gemini.setApiKey(key);
+    this.gemini.setModel(model);
+    this.updateStatusBadge();
+    document.getElementById('settingsModal').classList.remove('active');
+
+    alert(this.gemini.hasApiKey() 
+      ? `Gemini API key saved! Powered by ${model}.` 
+      : `Settings saved. Using offline high-accuracy Local NLP engine.`);
+  }
+
+  loadEmailPreset(key) {
+    const preset = EMAIL_PRESETS[key];
+    if (!preset) return;
+    document.getElementById('emailSender').value = preset.sender;
+    document.getElementById('emailSubject').value = preset.subject;
+    document.getElementById('emailBody').value = preset.body;
+  }
+
+  clearEmailForm() {
+    document.getElementById('emailSender').value = '';
+    document.getElementById('emailSubject').value = '';
+    document.getElementById('emailBody').value = '';
+    document.getElementById('emailEmptyState').style.display = 'flex';
+    document.getElementById('emailResultContent').style.display = 'none';
+  }
+
+  loadUrlPreset(key) {
+    const url = URL_PRESETS[key];
+    if (!url) return;
+    document.getElementById('targetUrl').value = url;
+  }
+
+  clearUrlForm() {
+    document.getElementById('targetUrl').value = '';
+    document.getElementById('urlEmptyState').style.display = 'flex';
+    document.getElementById('urlResultContent').style.display = 'none';
+  }
+
+  // Cross-check extracted email link in URL tab
+  inspectExtractedUrl(url) {
+    this.switchTab('urlTab');
+    document.getElementById('targetUrl').value = url;
+    this.analyzeUrl();
+  }
+
+  // Analyze Email
+  async analyzeEmail() {
+    const sender = document.getElementById('emailSender').value.trim();
+    const subject = document.getElementById('emailSubject').value.trim();
+    const body = document.getElementById('emailBody').value.trim();
+
+    if (!body && !subject) {
+      alert("Please provide at least a Subject line or Email body to analyze.");
+      return;
+    }
+
+    const emptyState = document.getElementById('emailEmptyState');
+    const loadingState = document.getElementById('emailLoadingState');
+    const resultContent = document.getElementById('emailResultContent');
+    const loadingSub = document.getElementById('emailLoadingSub');
+
+    emptyState.style.display = 'none';
+    resultContent.style.display = 'none';
+    loadingState.style.display = 'flex';
+
+    let result = null;
+    const hasKey = this.gemini.hasApiKey();
+
+    try {
+      if (hasKey) {
+        loadingSub.innerText = `Connecting to Google Gemini API (${this.gemini.getModel()})...`;
+        result = await this.gemini.analyzeEmail({ subject, sender, body });
+      } else {
+        loadingSub.innerText = "Running comprehensive offline heuristic & Bayesian NLP engine...";
+        await new Promise(r => setTimeout(r, 600)); // Smooth feel
+        result = NLPEngine.analyzeEmail({ subject, sender, body });
+        result.engine = 'Local NLP Engine';
+      }
+    } catch (err) {
+      console.warn("Gemini API call failed, falling back to local NLP engine:", err);
+      alert(`Notice: ${err.message}\nFalling back to Local NLP Engine.`);
+      result = NLPEngine.analyzeEmail({ subject, sender, body });
+      result.engine = 'Local NLP (Fallback)';
+    } finally {
+      loadingState.style.display = 'none';
+    }
+
+    this.renderEmailResults(result, subject || body.slice(0, 30));
+  }
+
+  renderEmailResults(res, targetSummary) {
+    const resultContent = document.getElementById('emailResultContent');
+    resultContent.style.display = 'block';
+
+    // Verdict Box
+    const box = document.getElementById('emailVerdictBox');
+    const tag = box.querySelector('.verdict-tag');
+    const title = document.getElementById('emailVerdictText');
+    const icon = document.getElementById('emailVerdictIcon');
+
+    box.className = 'verdict-box';
+    if (res.threatScore < 40) {
+      box.classList.add('safe');
+      title.innerText = res.verdict || 'LEGITIMATE (HAM)';
+      icon.innerText = '✅';
+    } else if (res.threatScore < 70) {
+      box.classList.add('warning');
+      title.innerText = res.verdict || 'SUSPICIOUS / SPAM';
+      icon.innerText = '⚠️';
+    } else {
+      box.classList.add('danger');
+      title.innerText = res.verdict || 'MALICIOUS PHISHING';
+      icon.innerText = '🚨';
+    }
+
+    // Gauge
+    this.animateGauge('emailGaugeFill', 'emailScoreVal', res.threatScore);
+    document.getElementById('emailEnginePill').innerText = `Engine: ${res.engine || 'Local NLP'}`;
+
+    // Metrics Breakdown
+    const b = res.threatBreakdown || { phishing: 0, urgency: 0, credentialHarvester: 0, spoofing: 0 };
+    this.updateMetricBar('metricPhishingBar', 'metricPhishingVal', b.phishing);
+    this.updateMetricBar('metricUrgencyBar', 'metricUrgencyVal', b.urgency);
+    this.updateMetricBar('metricCredBar', 'metricCredVal', b.credentialHarvester);
+    this.updateMetricBar('metricSpoofBar', 'metricSpoofVal', b.spoofing);
+
+    // Red Flags
+    const redFlagsContainer = document.getElementById('emailRedFlagsList');
+    redFlagsContainer.innerHTML = '';
+    if (!res.redFlags || res.redFlags.length === 0) {
+      redFlagsContainer.innerHTML = `<div class="flag-item safe-flag"><span>🛡️</span> No severe security anomalies or deceptive tactics detected.</div>`;
+    } else {
+      res.redFlags.forEach(flag => {
+        const item = document.createElement('div');
+        item.className = 'flag-item';
+        item.innerHTML = `<span>⚠️</span> <span>${flag}</span>`;
+        redFlagsContainer.appendChild(item);
+      });
+    }
+
+    // Reasoning
+    document.getElementById('emailReasoningBox').innerText = res.reasoning || 'No analysis available.';
+
+    // Extracted Links
+    const linksWrapper = document.getElementById('emailExtractedLinksWrapper');
+    const linksList = document.getElementById('emailExtractedLinksList');
+    linksList.innerHTML = '';
+
+    if (res.extractedUrls && res.extractedUrls.length > 0) {
+      linksWrapper.style.display = 'block';
+      res.extractedUrls.forEach(linkObj => {
+        const row = document.createElement('div');
+        row.className = 'link-row';
+        row.innerHTML = `
+          <span class="link-url-text" title="${linkObj.url}">${linkObj.url}</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 11px; color: ${linkObj.threatScore >= 60 ? 'var(--danger-red)' : (linkObj.threatScore >= 35 ? 'var(--warn-yellow)' : 'var(--safe-green)')}; font-weight: 600;">
+              ${linkObj.verdict}
+            </span>
+            <button class="inspect-link-btn" onclick="App.inspectExtractedUrl('${linkObj.url}')">
+              Inspect Link ↗
+            </button>
+          </div>
+        `;
+        linksList.appendChild(row);
+      });
+    } else {
+      linksWrapper.style.display = 'none';
+    }
+
+    // Log History
+    this.addHistory({
+      type: 'Email',
+      target: targetSummary,
+      threatScore: res.threatScore,
+      verdict: res.verdict,
+      engine: res.engine || 'Local NLP',
+      timestamp: new Date().toLocaleTimeString()
+    });
+  }
+
+  // Analyze URL
+  async analyzeUrl() {
+    const urlInput = document.getElementById('targetUrl').value.trim();
+    if (!urlInput) {
+      alert("Please enter a URL or link to inspect.");
+      return;
+    }
+
+    const emptyState = document.getElementById('urlEmptyState');
+    const loadingState = document.getElementById('urlLoadingState');
+    const resultContent = document.getElementById('urlResultContent');
+
+    emptyState.style.display = 'none';
+    resultContent.style.display = 'none';
+    loadingState.style.display = 'flex';
+
+    let result = null;
+    const hasKey = this.gemini.hasApiKey();
+
+    try {
+      if (hasKey) {
+        result = await this.gemini.analyzeUrl(urlInput);
+      } else {
+        await new Promise(r => setTimeout(r, 500));
+        result = NLPEngine.analyzeUrl(urlInput);
+        result.engine = 'Local NLP Engine';
+      }
+    } catch (err) {
+      console.warn("Gemini URL API call failed:", err);
+      alert(`Notice: ${err.message}\nFalling back to Local NLP Engine.`);
+      result = NLPEngine.analyzeUrl(urlInput);
+      result.engine = 'Local NLP (Fallback)';
+    } finally {
+      loadingState.style.display = 'none';
+    }
+
+    this.renderUrlResults(result);
+  }
+
+  renderUrlResults(res) {
+    const resultContent = document.getElementById('urlResultContent');
+    resultContent.style.display = 'block';
+
+    // Verdict Box
+    const box = document.getElementById('urlVerdictBox');
+    const title = document.getElementById('urlVerdictText');
+    const icon = document.getElementById('urlVerdictIcon');
+
+    box.className = 'verdict-box';
+    if (res.threatScore < 40) {
+      box.classList.add('safe');
+      title.innerText = res.verdict || 'SAFE / LEGITIMATE';
+      icon.innerText = '✅';
+    } else if (res.threatScore < 70) {
+      box.classList.add('warning');
+      title.innerText = res.verdict || 'SUSPICIOUS LINK';
+      icon.innerText = '⚠️';
+    } else {
+      box.classList.add('danger');
+      title.innerText = res.verdict || 'PHISHING / MALICIOUS LINK';
+      icon.innerText = '🚨';
+    }
+
+    // Gauge
+    this.animateGauge('urlGaugeFill', 'urlScoreVal', res.threatScore);
+    document.getElementById('urlEnginePill').innerText = `Engine: ${res.engine || 'Local NLP'}`;
+
+    // Anatomy
+    const d = res.details || {};
+    document.getElementById('anatomyProto').innerText = (d.protocol || 'https').toUpperCase();
+    document.getElementById('anatomyHost').innerText = d.host || 'Unknown';
+    document.getElementById('anatomyBrand').innerText = res.impersonatedBrand || 'None Detected';
+    document.getElementById('anatomyEntropy').innerText = d.entropy ? `${d.entropy} bits` : 'Normal';
+
+    // Red Flags
+    const redFlagsContainer = document.getElementById('urlRedFlagsList');
+    redFlagsContainer.innerHTML = '';
+    if (!res.redFlags || res.redFlags.length === 0) {
+      redFlagsContainer.innerHTML = `<div class="flag-item safe-flag"><span>🛡️</span> No domain spoofing, homoglyphs, or suspicious redirection indicators found.</div>`;
+    } else {
+      res.redFlags.forEach(flag => {
+        const item = document.createElement('div');
+        item.className = 'flag-item';
+        item.innerHTML = `<span>⚠️</span> <span>${flag}</span>`;
+        redFlagsContainer.appendChild(item);
+      });
+    }
+
+    // Reasoning
+    document.getElementById('urlReasoningBox').innerText = res.reasoning || 'No analysis available.';
+
+    // Log History
+    this.addHistory({
+      type: 'Link',
+      target: res.url || document.getElementById('targetUrl').value,
+      threatScore: res.threatScore,
+      verdict: res.verdict,
+      engine: res.engine || 'Local NLP',
+      timestamp: new Date().toLocaleTimeString()
+    });
+  }
+
+  animateGauge(fillId, valId, score) {
+    const fill = document.getElementById(fillId);
+    const valText = document.getElementById(valId);
+    const circumference = 251.2;
+    const offset = circumference - (score / 100) * circumference;
+
+    fill.style.strokeDashoffset = offset;
+    valText.innerText = `${score}%`;
+
+    if (score < 40) {
+      fill.style.stroke = 'var(--safe-green)';
+      valText.style.color = 'var(--safe-green)';
+    } else if (score < 70) {
+      fill.style.stroke = 'var(--warn-yellow)';
+      valText.style.color = 'var(--warn-yellow)';
+    } else {
+      fill.style.stroke = 'var(--danger-red)';
+      valText.style.color = 'var(--danger-red)';
+    }
+  }
+
+  updateMetricBar(barId, valId, score) {
+    const bar = document.getElementById(barId);
+    const val = document.getElementById(valId);
+    const clamped = Math.min(100, Math.max(0, score || 0));
+
+    bar.style.width = `${clamped}%`;
+    val.innerText = `${clamped}%`;
+
+    if (clamped >= 70) {
+      bar.style.background = 'var(--danger-red)';
+    } else if (clamped >= 40) {
+      bar.style.background = 'var(--warn-yellow)';
+    } else {
+      bar.style.background = 'var(--safe-green)';
+    }
+  }
+
+  // History Operations
+  loadHistory() {
+    try {
+      return JSON.parse(localStorage.getItem('spamguard_scan_history')) || [];
+    } catch {
+      return [];
+    }
+  }
+
+  addHistory(item) {
+    this.history.unshift(item);
+    if (this.history.length > 50) this.history.pop();
+    localStorage.setItem('spamguard_scan_history', JSON.stringify(this.history));
+    this.renderHistory();
+  }
+
+  clearHistory() {
+    if (confirm("Are you sure you want to clear scan history?")) {
+      this.history = [];
+      localStorage.removeItem('spamguard_scan_history');
+      this.renderHistory();
+    }
+  }
+
+  exportHistory() {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.history, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `spamguard_audit_log_${Date.now()}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+  }
+
+  renderHistory() {
+    document.getElementById('historyCount').innerText = this.history.length;
+    const tbody = document.getElementById('historyTableBody');
+    if (!this.history || this.history.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-sub); padding: 30px;">No scans recorded yet. Run an email or link check to build history!</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = '';
+    this.history.forEach(item => {
+      const tr = document.createElement('tr');
+      const scoreColor = item.threatScore >= 70 ? 'var(--danger-red)' : (item.threatScore >= 40 ? 'var(--warn-yellow)' : 'var(--safe-green)');
+      tr.innerHTML = `
+        <td style="color: var(--text-sub);">${item.timestamp}</td>
+        <td><strong>${item.type}</strong></td>
+        <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: monospace;">${item.target}</td>
+        <td style="color: ${scoreColor}; font-weight: 700;">${item.threatScore}%</td>
+        <td><span style="color: ${scoreColor}; font-size: 12px; font-weight: 600;">${item.verdict}</span></td>
+        <td style="color: var(--text-muted); font-size: 12px;">${item.engine}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+}
+
+// Global initialization
+document.addEventListener('DOMContentLoaded', () => {
+  window.App = new Application();
+});
+
+</script>
+</body>
+</html>
+

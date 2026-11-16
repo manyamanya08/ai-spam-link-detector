@@ -1,0 +1,6 @@
+# Environment & system files
+.DS_Store
+Thumbs.db
+*.zip
+*.tmp
+.vscode/
